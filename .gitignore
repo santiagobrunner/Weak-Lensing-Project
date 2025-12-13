@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Data files
+*.fits
+*.hdf5
+*.h5
+*.npy
+*.npz
+*.pkl
+data/
+*.csv
+*.dat
+
+# Mac
+.DS_Store
+
+# IDE
+.vscode/
+
+# Reports (you can add back selectively later)
+*.pdf
+
+# Outputs
+*.png
+figures/
+outputs/
+
