@@ -49,7 +49,7 @@ Three kernel functions were implemented and rigorously compared:
 
 For each spatial region (pixel), we perform hypothesis testing:
 - **Null hypothesis H₀**: Local distribution = Global distribution
-- **Test statistic**: MMD² between local sample (n=20,000) and global sample (n=20,000)
+- **Test statistic**: MMD² between local sample (n=20,000) and global sample (m=20,000)
 - **Noise threshold**: Established via bootstrap (15,000 iterations): μ = 2.93×10⁻⁶, σ = 4.16×10⁻⁶ (for linear kernel)
 
 Regions with MMD² exceeding the noise threshold indicate significant distributional shifts.
@@ -163,9 +163,12 @@ Both methods successfully identify the direction of distributional shifts in >70
 └── README.md                     # This file
 ```
 ## Data
-Our main dataset consists of 31 million galaxies simulated by the GalSBI software. Due to the size of this dataset  (~7GB) it was not uploaded to this repository.
+Our main dataset consists of 31 million galaxies simulated by the GalSBI software. Due to the size of this dataset (~7GB) it was not uploaded to this repository.
 
-The remaining data used are the power spectrum used to create convergence maps (cl_kappa_mean_225.txt) and the corresponding pseudo power spectrum (pseudo_cl.txt) for the observed sky patch. 
+The remaining data used are:
+- Power spectrum used to create convergence maps (cl_kappa_mean_225.txt)
+- Corresponding pseudo power spectrum (pseudo_cl.txt) for the observed sky patch
+- Precomputed MMD² values stored in .npy format for reproducibility
 
 ## Citation
 
