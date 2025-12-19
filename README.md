@@ -185,4 +185,4 @@ GitHub: [github.com/santiagobrunner](https://github.com/santiagobrunner)
 
 ---
 
-*This project demonstrates advanced statistical methods including kernel-based hypothesis testing, weighted regression, distribution analysis, and large-scale data processing—all highly relevant to quantitative finance, risk modeling, and data science applications.*
+
