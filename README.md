@@ -1,12 +1,12 @@
 # Weak Lensing Convergence Estimation using Maximum Mean Discrepancy
 
-A statistical framework for inferring convergence fields from high-dimensional observational data using kernel-based distribution testing and regression methods.
+A statistical framework for inferring convergence fields from simulated galaxy size data using kernel-based distribution testing and regression methods.
 
 ## Overview
 
-This project develops a non-parametric statistical approach to detect and quantify distributional shifts in large-scale datasets. Using Maximum Mean Discrepancy (MMD) as a distance metric in reproducing kernel Hilbert spaces (RKHS), we construct robust estimators that achieve strong predictive performance on 31 million observations across 1,145 spatial regions.
+This project develops a non-parametric statistical approach to detect and quantify distributional shifts in large-scale datasets. Using Maximum Mean Discrepancy (MMD) as a distance metric in reproducing kernel Hilbert spaces (RKHS), we construct robust estimators that achieve strong predictive performance on 31 million observations across 1,248 spatial regions.
 
-**Key Achievement**: Built linear estimators from kernel-based distribution distances with R² ≈ 0.91 and 75% correlation with ground truth, demonstrating the effectiveness of kernel methods for signal extraction in noisy, high-dimensional observational data.
+**Key Achievement**: Built linear estimators from kernel-based distribution distances with R² ≈ 0.91 and 75% correlation with ground truth, demonstrating the effectiveness of kernel methods for signal extraction in noisy, large-scale data.
 
 ## Statistical Methodology
 
@@ -33,12 +33,12 @@ Three kernel functions were implemented and rigorously compared:
 1. **Linear Kernel**: `k(x,y) = x·y`
    - Reduces MMD² to squared difference of means
    - Baseline for detecting first-moment shifts
-   - Validated against existing literature
+   - Validated against previous work
 
 2. **RBF Kernel**: `k(x,y) = exp(-||x-y||²/2σ²)`
    - Captures non-linear distributional changes
    - Sensitive to higher-order moments
-   - Achieved R² = 0.91 in convergence prediction
+   - Achieved R² = 0.91 for the constructed estimator
 
 3. **Directed RBF Kernel**: `k(x,y) = sgn(x-y) · exp(-||x-y||²/2σ²)`
    - Custom asymmetric kernel encoding directional information
@@ -50,7 +50,7 @@ Three kernel functions were implemented and rigorously compared:
 For each spatial region (pixel), we perform hypothesis testing:
 - **Null hypothesis H₀**: Local distribution = Global distribution
 - **Test statistic**: MMD² between local sample (n=20,000) and global sample (n=20,000)
-- **Noise threshold**: Established via bootstrap (15,000 iterations): μ = 2.93×10⁻⁶, σ = 4.16×10⁻⁶
+- **Noise threshold**: Established via bootstrap (15,000 iterations): μ = 2.93×10⁻⁶, σ = 4.16×10⁻⁶ (for linear kernel)
 
 Regions with MMD² exceeding the noise threshold indicate significant distributional shifts.
 
@@ -111,8 +111,8 @@ Both methods successfully identify the direction of distributional shifts in >70
 
 ### Power Spectrum Recovery
 
-- **Small scales (ℓ > 40)**: Good agreement with ground truth
-- **Large scales (ℓ < 40)**: Systematic overestimation due to finite sample size (1,000 deg²)
+- **Small scales (ℓ > 40)**: Good agreement with ground truth.
+- **Large scales (ℓ < 40)**: Detection threshold leads to more pixels with similar convergence values, thereby enhancing correlation and power, respectively.
 - Pseudo power spectrum computed using `anafast` with partial sky coverage corrections
 
 ## Data Pipeline
@@ -120,7 +120,7 @@ Both methods successfully identify the direction of distributional shifts in >70
 ### Input Data
 - **Sample size**: 31 million observations
 - **Sky coverage**: 1,000 deg²
-- **Spatial regions**: 1,145 pixels (HEALPix nside=64)
+- **Spatial regions**: 1,145 pixels (HEALPix nside=64 with Minimum Galaxy Constraint)
 - **Regional sample size**: 20,000 observations per region for MMD computation
 
 ### Quality Control
@@ -135,32 +135,37 @@ Both methods successfully identify the direction of distributional shifts in >70
 
 ## Model Limitations and Considerations
 
-1. **Detection Threshold**: MMD cannot reliably detect very small distributional shifts (|κ| < 5×10⁻³), creating an artificial gap near zero in predictions
+1. **Detection Threshold**: MMD cannot reliably detect very small distributional shifts (|κ| < 5×10⁻³), creating an artificial gap near zero in predictions and creating additional artificional correlation between pixels.
 
-2. **Variance Inflation**: Predicted maps show 20-30% higher scatter than ground truth, indicating model uncertainty beyond sampling noise
+2. **Variance Inflation**: Predicted maps show 20-30% higher scatter than ground truth, indicating model uncertainty beyond sampling noise.
 
-3. **Scale Limitations**: Power spectrum recovery limited at largest scales due to finite survey area (requires >10,000 deg² for full ℓ-space coverage)
+3. **Scale Limitations**: Power spectrum recovery limited at largest scales due to cosmic variance and detection excess power from detection thereshold.
 
-4. **Non-Gaussianity**: Elevated skewness and kurtosis in predictions suggest residual systematic effects
+4. **Non-Gaussianity**: Elevated skewness and kurtosis in predictions suggest residual systematic effects.
 
 ## Key Statistical Innovations
 
 - **Kernel-based distribution testing** at scale (31M observations, 1,145 regions)
 - **Custom asymmetric kernel design** for intrinsic sign encoding
 - **Weighted regression framework** addressing heteroscedastic residuals
-- **Multi-scale validation**: pixel-level, distributional, and spectral analysis
-- **Robust noise characterization** via bootstrap methods
+- **Multi-scale validation**: pixel-level, distributional, and power spectrum analysis
 
 ## Repository Structure
 
 ```
 .
+├── mmd2_*                        # Computed MMD² values for different kernels and maps
 ├── code.ipynb                    # Full analysis pipeline and visualizations
-├── compute_MMDs.py               # Core MMD computation functions
+├── compute_MMDs.py               # Core MMD computation script to run on Euler Cluster
 ├── cl_kappa_mean_225.txt         # Input power spectrum data
-├── pseudo_cl.txt                 # Recovered power spectrum results
+├── pseudo_cl.txt                 # Pseudo power spectrum data for sky patch
+├── kappa_*                       # Average convergence per region for for different kernels and maps
 └── README.md                     # This file
 ```
+## Data
+Our main dataset consists of 31 million galaxies simulated by the GalSBI software. Due to the size of this dataset  (~7GB) it was not uploaded to this repository.
+
+The remaining data used are the power spectrum used to create convergence maps (cl_kappa_mean_225.txt) and the corresponding pseudo power spectrum (pseudo_cl.txt) for the observed sky patch. 
 
 ## Citation
 
