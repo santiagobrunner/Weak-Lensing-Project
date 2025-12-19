@@ -92,16 +92,16 @@ np.random.seed(coarse_random_seed)
 kappamap_225 = hp.synfast(cl_kappa_225, nside)  # generate kappa map from power spectrum
 print("Cl_kappa225 shape:", cl_kappa_225.shape, "   kappamap225 shape:", kappamap_225.shape )
 
-pixscale = 0.263
-sizes_in_arcsec1000 = catalogue1000['r50'] * pixscale   #arcsec
 
 # Convert galaxy coordinates to HEALPix pixel indices
 galaxy_pix1000 = hp.ang2pix(nside, catalogue1000['ra'], catalogue1000['dec'], lonlat=True)
 galaxy_pix1000_unique, galaxy_pix1000_counts = np.unique(galaxy_pix1000, return_counts=True)
 n_pixels = hp.nside2npix(nside)
 
-intrinsic_size1000 = sizes_in_arcsec1000
-observed_size1000 = sizes_in_arcsec1000 * (1.0 + kappamap_225[galaxy_pix1000])
+
+pixscale = 0.263
+intrinsic_size1000 = catalogue1000['r50'] * pixscale   #arcsec
+observed_size1000 = intrinsic_size1000 * (1.0 + kappamap_225[galaxy_pix1000])
 
 size_mask1000 = (intrinsic_size1000 < 5.0) #arcsec
 
@@ -132,7 +132,7 @@ batch_size = 125
 n_pixels = len(galaxy_pix1000_unique)
 Y_lensed1000 = recovery_observed_size[size_mask1000].reshape(-1, 1)
 
-for i, batch_start in enumerate(range(0, n_pixels, batch_size)):    #Iterate over batches
+for i, batch_start in enumerate(range(0, n_pixels, batch_size)):    #Iterate over batches. In case of crash, we save each batch.
     batch_end = min(batch_start + batch_size, n_pixels)
     pixel_batch = galaxy_pix1000_unique[batch_start:batch_end]
     mmd2_lensed_batch_dir_rbf = []
@@ -154,7 +154,7 @@ for i, batch_start in enumerate(range(0, n_pixels, batch_size)):    #Iterate ove
             mmd2_lensed_batch_dir_rbf.append(mmd2_dir)
             mmd2_lensed_batch_rbf.append(mmd2_rbf)
 
-    # Save batch results
-    np.save(f'/cluster/home/sbrunne/mmd2_recov_dir_rbf/mmd2_lensed_dir_rbf_fine_batch_{i+1}.npy', mmd2_lensed_batch_dir_rbf)
-    np.save(f'/cluster/home/sbrunne/mmd2_recov_rbf/mmd2_lensed_rbf_fine_batch_{i+1}.npy', mmd2_lensed_batch_rbf)
-    print(f"Batch {i+1} saved!")
+    # Save batch results on euler 
+    # np.save(f'/cluster/home/sbrunne/mmd2_recov_dir_rbf/mmd2_lensed_dir_rbf_fine_batch_{i+1}.npy', mmd2_lensed_batch_dir_rbf)
+    # np.save(f'/cluster/home/sbrunne/mmd2_recov_rbf/mmd2_lensed_rbf_fine_batch_{i+1}.npy', mmd2_lensed_batch_rbf)
+    # print(f"Batch {i+1} saved!")
